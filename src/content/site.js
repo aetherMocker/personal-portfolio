@@ -12,7 +12,7 @@ export const site = {
   /* about page */
   about: {
     heading: "Between the measured and the felt.",
-    portrait: "images/about-pic.jpg",
+    portrait: "images/tooplate-about-image.jpg",
     portraitAlt: "Portrait of Aether",
     paragraphs: [
       "My work begins with fragments (field notes, remembered color, the geometry of built spaces) and moves slowly toward abstraction.",
