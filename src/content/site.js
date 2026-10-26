@@ -5,7 +5,7 @@
 
 export const site = {
   /* home page, header, footer */
-  name: "Aether Mocker",
+  name: "Aether",
   location: "Portland, Oregon", // required for footer to render! can change later...
   statement: "Art is less about the final product, but rather of the process of construction, molding, mixing, blending, and feeling.",
 
@@ -13,7 +13,7 @@ export const site = {
   about: {
     heading: "Between the measured and the felt.",
     portrait: "images/about-pic.jpg",
-    portraitAlt: "Portrait of Aether Mocker",
+    portraitAlt: "Portrait of Aether",
     paragraphs: [
       "My work begins with fragments (field notes, remembered color, the geometry of built spaces) and moves slowly toward abstraction.",
       "I work in series, letting each piece answer the one before it. A painting is finished when nothing more needs to be added.",
