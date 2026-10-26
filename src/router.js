@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import GalleryView from "./views/GalleryView.vue";
 import AboutView from "./views/AboutView.vue";
 import ContactView from "./views/ContactView.vue";
+import BlogView from "./views/BlogView.vue";
 
 // Hash history keeps the site working on any static host with no rewrite rules.
 export default createRouter({
@@ -9,7 +10,7 @@ export default createRouter({
   routes: [
     { path: "/", name: "gallery", component: GalleryView },
     { path: "/about", name: "about", component: AboutView },
-    { path: "/contact", name: "contact", component: ContactView },
+    { path: "/blog", name: "blog", component: BlogView },
     { path: "/:pathMatch(.*)*", redirect: "/" },
   ],
   scrollBehavior(to, _from, saved) {

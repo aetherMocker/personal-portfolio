@@ -1,18 +1,15 @@
+/* Site content -- for what little text in the site there is... it's all stored here. 
+
+  Text is placeholders, replace on your own. 
+*/
+
 export const site = {
+  /* home page, header, footer */
   name: "Aether Mocker",
-  location: "Portland, OR",
-  timezone: "America/Los_Angeles",
-  email: "aethermock@gmail.com",
-  availability: "...",
+  location: "Portland, Oregon", // required for footer to render! can change later...
   statement: "Art is less about the final product, but rather of the process of construction, molding, mixing, blending, and feeling.",
-  instagram: { handle: "@maravoss", href: "https://instagram.com/" },
-  responseTime: "Will get back to you ASAP",
 
-  // Contact form: set this to a Formspree / Netlify / own endpoint to send messages directly. 
-  // While empty, the form opens the visitor's email app instead.
-  contactEndpoint: "",
-  enquiryTypes: ["Personal enquiry", "Commission", "Other"],
-
+  /* about page */
   about: {
     heading: "Between the measured and the felt.",
     portrait: "images/about-pic.jpg",

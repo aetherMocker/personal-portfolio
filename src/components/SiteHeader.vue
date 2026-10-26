@@ -11,7 +11,7 @@ const links = [
   { label: "Works", to: { path: "/", hash: "#works" } },
   { label: "Index", to: { path: "/", hash: "#index" } },
   { label: "About", to: "/about" },
-  { label: "Contact", to: "/contact" },
+  { label: "Blog", to: "/blog" },
 ];
 
 const isCurrent = (link) => typeof link.to === "string" && link.to === route.path;

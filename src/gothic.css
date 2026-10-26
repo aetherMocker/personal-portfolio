@@ -1,0 +1,41 @@
+/* Gothic layer: one display face plus double rules. Colours are untouched.
+   Import after style.css:  import "./gothic.css";   (in main.js)
+   Delete this file and the import to go back to the original look. */
+@import url("https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400..700&display=swap");
+
+:root {
+  --display: "Grenze Gotisch", "UnifrakturCook", Georgia, serif;
+}
+
+/* Blackletter-flavoured display type. Tracking is reset to 0 because tight
+   negative tracking, right for the sans, crowds these letterforms. */
+#app .wordmark {
+  font-family: var(--display);
+  font-size: 27px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+#app .footer .name {
+  font-family: var(--display);
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+#app .year {
+  font-family: var(--display);
+  font-size: clamp(30px, 2.8vw, 42px);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+#app .heading,
+body .cm .heading,
+body .cm .top .heading {
+  font-family: var(--display);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+
+/* Manuscript-style double rules replace two of the single hairlines. */
+#app .filters { border-top: 3px double var(--ink); }
+#app .index .head { border-bottom: 3px double var(--ink); }

@@ -66,7 +66,7 @@ const sourceText = {
           </header>
 
           <p class="intro">
-            Your catalog is a spreadsheet with one row per work. Images are matched through the
+            How I made this catalog— A spreadsheet & image files. Images are matched through the
             <strong>file</strong> column, which can be a file name or a path.
           </p>
 
