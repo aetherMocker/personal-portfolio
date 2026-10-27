@@ -1,28 +1,22 @@
 <script setup>
-import { ref, watch } from "vue";
-import { useRoute } from "vue-router";
-import { site } from "../content/site";
+    import { ref, watch } from "vue";
+    import { useRoute } from "vue-router";
+    import { site } from "../content/site";
 
-const emit = defineEmits(["open-catalog"]);
-const route = useRoute();
-const menuOpen = ref(false);
+    const route = useRoute();
+    const menuOpen = ref(false);
 
-const links = [
-  { label: "Works", to: { path: "/", hash: "#works" } },
-  { label: "Collections", to: "/collections" },
-  { label: "Index", to: { path: "/", hash: "#index" } },
-  { label: "About", to: "/about" },
-  { label: "Contact", to: "/contact" },
-];
+    const links = [
+      { label: "Works", to: { path: "/", hash: "#works" } },
+      { label: "Collections", to: "/collections" },
+      { label: "Index", to: { path: "/", hash: "#index" } },
+      { label: "About", to: "/about" },
+      { label: "Contact", to: "/contact" },
+    ];
 
-const isCurrent = (link) => typeof link.to === "string" && link.to === route.path;
+    const isCurrent = (link) => typeof link.to === "string" && link.to === route.path;
 
-watch(() => route.fullPath, () => (menuOpen.value = false));
-
-function openCatalog() {
-  menuOpen.value = false;
-  emit("open-catalog");
-}
+    watch(() => route.fullPath, () => (menuOpen.value = false));
 </script>
 
 <template>
@@ -40,8 +34,6 @@ function openCatalog() {
           {{ link.label }}
         </RouterLink>
       </nav>
-
-      <button class="catalog" type="button" @click="openCatalog">Catalog</button>
 
       <button
         class="menu-toggle"
@@ -83,16 +75,13 @@ function openCatalog() {
 .nav a { color: var(--muted); transition: color 0.15s; }
 .nav a:hover, .nav a[aria-current="page"] { color: var(--ink); }
 .nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
-.catalog { justify-self: end; font-family: var(--mono); font-size: 12px; color: var(--muted); }
-.catalog:hover { color: var(--ink); }
 .menu-toggle { display: none; font-family: var(--mono); font-size: 12px; }
 .mobile-nav { border-bottom: 1px solid var(--line); background: var(--paper); }
 .mobile-nav .page { display: flex; flex-direction: column; gap: 18px; padding-block: 22px 26px; font-size: 20px; letter-spacing: -0.01em; }
-.mobile-nav button { font-size: inherit; color: var(--muted); }
 
 @media (max-width: 760px) {
   .bar { display: flex; justify-content: space-between; }
-  .nav, .catalog { display: none; }
+  .nav { display: none; }
   .menu-toggle { display: block; }
 }
 @media (min-width: 761px) {

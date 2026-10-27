@@ -4,8 +4,8 @@ import AboutView from "./views/AboutView.vue";
 import ContactView from "./views/ContactView.vue";
 import BlogView from "./views/BlogView.vue";
 import CollectionsView from "./views/CollectionsView.vue";
+import CatalogView from "./views/CatalogView.vue";
 
-// Hash history keeps the site working on any static host with no rewrite rules.
 export default createRouter({
   history: createWebHashHistory(),
   routes: [
@@ -13,8 +13,9 @@ export default createRouter({
     { path: "/about", name: "about", component: AboutView },
     { path: "/blog", name: "blog", component: BlogView },
     { path: "/collections", name: "collections", component: CollectionsView },
-        { path: "/:pathMatch(.*)*", redirect: "/" },
-      ],
+    { path: "/catalog", name: "catalog", component: CatalogView },
+    { path: "/:pathMatch(.*)*", redirect: "/" },
+  ],
   scrollBehavior(to, _from, saved) {
     if (saved) return saved;
     if (to.hash) return { el: to.hash, top: 0, behavior: "smooth" };
