@@ -9,9 +9,10 @@ const menuOpen = ref(false);
 
 const links = [
   { label: "Works", to: { path: "/", hash: "#works" } },
+  { label: "Collections", to: "/collections" },
   { label: "Index", to: { path: "/", hash: "#index" } },
   { label: "About", to: "/about" },
-  { label: "Blog", to: "/blog" },
+  { label: "Contact", to: "/contact" },
 ];
 
 const isCurrent = (link) => typeof link.to === "string" && link.to === route.path;

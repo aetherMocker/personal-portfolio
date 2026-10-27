@@ -30,6 +30,15 @@ export function mediumGroupsFor(medium) {
 /** Display order for filter options: configured groups first, "Other" last. */
 export const MEDIUM_ORDER = [...MEDIUM_GROUPS.map((g) => g.label), "Other"];
 
+/** "collections" column: "[Spring Collection], [Landscape]" or "Spring, Landscape". */
+export function parseCollections(v) {
+  const s = clean(v);
+  if (!s) return [];
+  const bracketed = s.match(/\[([^\]]+)\]/g);
+  const names = bracketed ? bracketed.map((m) => m.slice(1, -1)) : s.split(",");
+  return [...new Set(names.map((n) => clean(n)).filter(Boolean))];
+}
+
 // ---------------------------------------------------------------- parsing
 
 const clean = (v) => String(v ?? "").trim();
@@ -121,6 +130,7 @@ export function normalizeRow(rawRow, index) {
     when: year ? year * 100 + (month || 0) : 0,
     medium,
     mediums: mediumGroupsFor(medium),
+    collections: parseCollections(pick(row, "collections", "collection")),
     size: sizeFrom(row),
     file,
     thumbFile,
@@ -163,12 +173,22 @@ export function formatWhen(work) {
 
 export const yearKey = (work) => (work.year ? String(work.year) : "Undated");
 
-export function sortWorks(list, direction = "newest") {
+export function sortWorks(list, direction = "newest", collection = null) {
+  const scoped = collection ? list.filter((w) => w.collections.includes(collection)) : list;
   const sign = direction === "newest" ? -1 : 1;
-  return [...list].sort((a, b) => {
-    if (!a.year !== !b.year) return a.year ? -1 : 1; // undated always last
+  return [...scoped].sort((a, b) => {
+    if (!a.year !== !b.year) return a.year ? -1 : 1;
     return (a.when - b.when) * sign || a.order - b.order;
   });
+}
+
+/** Sorted list of unique collection names with work counts. */
+export function uniqueCollections(works) {
+  const counts = new Map();
+  for (const w of works) for (const name of w.collections) counts.set(name, (counts.get(name) || 0) + 1);
+  return [...counts.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /** Groups an already-sorted list by year, keeping order. */
@@ -209,4 +229,5 @@ export const SAMPLE_ROWS = SAMPLE.map(([n, title, year, month, medium, size]) =>
 export const sampleWorks = () => SAMPLE_ROWS.map(normalizeRow);
 
 export const TEMPLATE_CSV =
-  "file,title,year,month,medium,size\nmy-artwork.jpg,Untitled No. 1,2025,3,Oil on canvas,40 × 60 in\n";
+  'file,title,year,month,medium,size,collections\n' +
+  'my-artwork.jpg,Untitled No. 1,2025,3,Oil on canvas,40 × 60 in,"[Spring Collection], [Landscape]"\n';
