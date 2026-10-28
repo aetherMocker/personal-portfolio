@@ -36,7 +36,7 @@ export function parseCollections(v) {
   if (!s) return [];
   const bracketed = s.match(/\[([^\]]+)\]/g);
   const names = bracketed ? bracketed.map((m) => m.slice(1, -1)) : s.split(",");
-  return [...new Set(names.map((n) => clean(n)).filter(Boolean))];
+  return [...new Set(names.map((n) => clean(n).replace(/\s+/g, " ")).filter(Boolean))];
 }
 
 // ---------------------------------------------------------------- parsing
@@ -140,13 +140,20 @@ export function normalizeRow(rawRow, index) {
   };
 }
 
+/** "landscape" and "Landscape" are one collection: the first spelling seen wins. */
+function unifyCollectionNames(works) {
+  const canon = new Map();
+  for (const w of works) for (const n of w.collections) if (!canon.has(n.toLowerCase())) canon.set(n.toLowerCase(), n);
+  return works.map((w) => ({ ...w, collections: [...new Set(w.collections.map((n) => canon.get(n.toLowerCase())))] }));
+}
+
 export async function parseSheet(buffer) {
   const XLSX = await import("xlsx"); // loaded on demand, keeps the first paint light
   const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   // codepage 65001 = UTF-8, so CSVs keep characters like ×
   const book = XLSX.read(bytes, { type: "array", cellDates: true, codepage: 65001 });
   const rows = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]], { defval: "" });
-  return rows.filter((r) => Object.values(r).some((v) => clean(v) !== "")).map(normalizeRow);
+  return unifyCollectionNames(rows.filter((r) => Object.values(r).some((v) => clean(v) !== "")).map(normalizeRow));
 }
 
 /** Looks for public/catalog.xlsx, then public/catalog.csv. Returns null if neither exists. */
@@ -174,10 +181,10 @@ export function formatWhen(work) {
 export const yearKey = (work) => (work.year ? String(work.year) : "Undated");
 
 export function sortWorks(list, direction = "newest", collection = null) {
-  const scoped = collection ? list.filter((w) => w.collections.includes(collection)) : list;
+  const scoped = collection ? list.filter((w) => (w.collections || []).includes(collection)) : list;
   const sign = direction === "newest" ? -1 : 1;
   return [...scoped].sort((a, b) => {
-    if (!a.year !== !b.year) return a.year ? -1 : 1;
+    if (!a.year !== !b.year) return a.year ? -1 : 1; // undated always last
     return (a.when - b.when) * sign || a.order - b.order;
   });
 }
@@ -185,7 +192,7 @@ export function sortWorks(list, direction = "newest", collection = null) {
 /** Sorted list of unique collection names with work counts. */
 export function uniqueCollections(works) {
   const counts = new Map();
-  for (const w of works) for (const name of w.collections) counts.set(name, (counts.get(name) || 0) + 1);
+  for (const w of works) for (const name of w.collections || []) counts.set(name, (counts.get(name) || 0) + 1);
   return [...counts.entries()]
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => a.name.localeCompare(b.name));
