@@ -96,6 +96,7 @@ function toggle(name) {
   padding-bottom: clamp(40px, 8vh, 96px);
 }
 
+
 /* Top band: a wide statement, and a small featured piece. */
 .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: clamp(24px, 4vw, 64px); align-items: start; }
 .statement {
@@ -121,9 +122,9 @@ function toggle(name) {
 .thumb img { display: block; width: auto; height: auto; max-width: clamp(72px, 7vw, 104px); max-height: 150px; }
 
 /* Collections: full-width ruled rows, name left, previews right. */
-.list { margin-top: clamp(44px, 8vh, 88px); scroll-margin-top: var(--header-h);}
+.list { margin-top: clamp(44px, 8vh, 88px); scroll-margin-top: var(--header-h); }
 .label { margin-bottom: 12px; }
-.collections { border-top: 3px double var(--ink); }
+.collections { border-top: 3px double var(--ink); padding-right: 10%; }
 
 .row {
   position: relative; /* anchors the row-wide click area */
