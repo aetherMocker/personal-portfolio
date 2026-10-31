@@ -9,16 +9,40 @@ const dialog = ref(null);
 const closeBtn = ref(null);
 const loaded = ref(false);
 const useThumb = ref(false);
+const panelIndex = ref(0);
+const showComposed = ref(false);
 let opener = null;
 
 const index = computed(() => props.works.findIndex((w) => w.id === id.value));
 const current = computed(() => (index.value === -1 ? null : props.works[index.value]));
-const src = computed(() => (current.value ? (useThumb.value ? current.value.thumb : current.value.image) : ""));
+
+const src = computed(() => {
+  if (!current.value) return "";
+  const idx = panelIndex.value;
+  const img = current.value.images?.[idx] || current.value.image;
+  const th = current.value.thumbs?.[idx] || current.value.thumb || img;
+  return useThumb.value ? th : img;
+});
 
 const close = () => (id.value = null);
+
 function step(delta) {
+  if (!current.value) return;
   const n = props.works.length;
-  if (n > 1) id.value = props.works[(index.value + delta + n) % n].id;
+  
+  if (showComposed.value) {
+    // In composed view, step through whole works
+    id.value = props.works[(index.value + delta + n) % n].id;
+  } else {
+    // In single view, step through panels first, then move to next/prev work
+    const numPanels = current.value.images?.length || 1;
+    const nextPanel = panelIndex.value + delta;
+    if (nextPanel >= 0 && nextPanel < numPanels) {
+      panelIndex.value = nextPanel;
+    } else {
+      id.value = props.works[(index.value + delta + n) % n].id;
+    }
+  }
 }
 
 watch(current, (now, before) => {
@@ -29,14 +53,16 @@ watch(current, (now, before) => {
   }
   if (!now && before) opener?.focus?.();
   if (now) {
-    // warm the neighbours so stepping feels instant
     for (const d of [-1, 1]) {
       const n = props.works[(index.value + d + props.works.length) % props.works.length];
       if (n?.image) new Image().src = n.image;
     }
   }
 });
+
+// Reset panel index and image states when the work changes
 watch(id, () => {
+  panelIndex.value = 0;
   loaded.value = false;
   useThumb.value = false;
 });
@@ -68,12 +94,35 @@ onBeforeUnmount(() => {
       <div v-if="current" ref="dialog" class="lb" role="dialog" aria-modal="true" :aria-label="current.title" @click.self="close">
         <header class="top">
           <p class="value">{{ index + 1 }} / {{ works.length }}</p>
-          <button ref="closeBtn" type="button" class="ctl" @click="close">Close</button>
+          
+          <div class="actions">
+            <button
+              v-if="current.images && current.images.length > 1"
+              type="button"
+              class="ctl"
+              :aria-pressed="showComposed"
+              @click="showComposed = !showComposed"
+            >
+              {{ showComposed ? 'View separately' : 'View together' }}
+            </button>
+            <button ref="closeBtn" type="button" class="ctl" @click="close">Close</button>
+          </div>
         </header>
 
         <div class="stage" @click.self="close">
+          <!-- Composed View (Multiple Panels) -->
+          <div v-if="showComposed && current.images && current.images.length > 1" class="composed" :class="current.layout">
+            <img
+              v-for="(img, i) in current.images"
+              :key="i"
+              :src="img"
+              :alt="`${current.title}, panel ${i + 1}`"
+            />
+          </div>
+          
+          <!-- Single View -->
           <img
-            v-if="src"
+            v-else-if="src"
             :key="current.id + src"
             :src="src"
             :alt="`${current.title}, ${current.medium || 'artwork'}`"
@@ -81,6 +130,7 @@ onBeforeUnmount(() => {
             @load="loaded = true"
             @error="useThumb ? (loaded = true) : (useThumb = true)"
           />
+          
           <p v-else class="value">Image not found; {{ current.file || "no file listed" }}</p>
         </div>
 
@@ -111,9 +161,12 @@ onBeforeUnmount(() => {
   padding: 14px var(--gutter) 20px;
   background: color-mix(in srgb, var(--paper) 97%, transparent);
 }
+
 .top { display: flex; justify-content: space-between; align-items: center; height: 36px; }
+.actions { display: flex; gap: 24px; align-items: center; }
 .ctl { font-family: var(--mono); font-size: 12px; color: var(--muted); padding: 6px 0; }
-.ctl:hover { color: var(--ink); }
+.ctl:hover, .ctl[aria-pressed="true"] { color: var(--ink); }
+.ctl[aria-pressed="true"] { text-decoration: underline; text-underline-offset: 4px; }
 
 .stage {
   display: flex;
@@ -124,7 +177,7 @@ onBeforeUnmount(() => {
   padding-block: 8px 18px;
 }
 
-.stage img {
+.stage > img {
   max-width: 100%;
   max-height: 100%;
   width: auto;
@@ -134,7 +187,34 @@ onBeforeUnmount(() => {
   opacity: 0;
   transition: opacity 0.3s ease;
 }
-.stage img.ready { opacity: 1; }
+.stage > img.ready { opacity: 1; }
+
+/* Composed view (multiple panels) */
+.composed {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  max-height: 100%;
+}
+.composed img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.composed.offset {
+  align-items: flex-start;
+}
+.composed.offset img:nth-child(2) {
+  margin-top: 15%; /* Adjust this percentage to align the canvases perfectly */
+}
+.composed.stacked {
+  flex-direction: column;
+}
 
 .foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
 .caption {

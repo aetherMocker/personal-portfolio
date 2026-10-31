@@ -41,6 +41,7 @@ export function parseCollections(v) {
 
 // ---------------------------------------------------------------- parsing
 
+const fileList = (v) => clean(v).split(",").map(s => s.trim()).filter(Boolean);
 const clean = (v) => String(v ?? "").trim();
 const lowerKeys = (row) => Object.fromEntries(Object.entries(row).map(([k, v]) => [k.trim().toLowerCase(), v]));
 
@@ -117,10 +118,17 @@ function sizeFrom(row) {
 
 export function normalizeRow(rawRow, index) {
   const row = lowerKeys(rawRow);
-  const file = clean(pick(row, "file", "filename", "file name", "image", "image file", "location", "path", "url"));
-  const thumbFile = clean(pick(row, "thumb", "thumbnail"));
+  const fileVal = clean(pick(row, "file", "filename", "file name", "image", "image file", "location", "path", "url"));
+  const files = fileList(fileVal);
+  const thumbVal = clean(pick(row, "thumb", "thumbnail"));
+  const thumbFiles = fileList(thumbVal);
+  
   const { year, month } = parseWhen(row);
   const medium = clean(pick(row, "medium", "materials"));
+  
+  const images = files.map(resolveSrc);
+  const thumbs = thumbFiles.length ? thumbFiles.map(resolveSrc) : images;
+
   return {
     id: `work-${index}`,
     order: index,
@@ -130,12 +138,14 @@ export function normalizeRow(rawRow, index) {
     when: year ? year * 100 + (month || 0) : 0,
     medium,
     mediums: mediumGroupsFor(medium),
-    collections: parseCollections(pick(row, "collections", "collection")),
     size: sizeFrom(row),
-    file,
-    thumbFile,
-    image: resolveSrc(file),
-    thumb: resolveSrc(thumbFile || file),
+    file: fileVal, // keep original for display
+    images,        // array of all panels
+    thumbs,        // array of thumbnails (falls back to full images)
+    image: images[0] || "",
+    thumb: thumbs[0] || images[0] || "",
+    layout: clean(pick(row, "layout")) || "side-by-side", // 'offset', 'stacked', or 'side-by-side'
+    collections: parseCollections(pick(row, "collections", "collection")),
     featured: /^(1|true|yes|y|x)$/i.test(clean(pick(row, "featured"))),
   };
 }
@@ -148,12 +158,18 @@ function unifyCollectionNames(works) {
 }
 
 export async function parseSheet(buffer) {
-  const XLSX = await import("xlsx"); // loaded on demand, keeps the first paint light
+  const XLSX = await import("xlsx");
+  
+  // Load the codepage support library for UTF-8 / legacy formats
+  const cptable = await import("xlsx/dist/cpexcel.full.mjs");
+  XLSX.set_cptable(cptable);
+
   const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   // codepage 65001 = UTF-8, so CSVs keep characters like ×
   const book = XLSX.read(bytes, { type: "array", cellDates: true, codepage: 65001 });
+  
   const rows = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]], { defval: "" });
-  return unifyCollectionNames(rows.filter((r) => Object.values(r).some((v) => clean(v) !== "")).map(normalizeRow));
+  return rows.filter((r) => Object.values(r).some((v) => clean(v) !== "")).map(normalizeRow);
 }
 
 /** Looks for public/catalog.xlsx, then public/catalog.csv. Returns null if neither exists. */
@@ -236,5 +252,6 @@ export const SAMPLE_ROWS = SAMPLE.map(([n, title, year, month, medium, size]) =>
 export const sampleWorks = () => SAMPLE_ROWS.map(normalizeRow);
 
 export const TEMPLATE_CSV =
-  'file,title,year,month,medium,size,collections\n' +
-  'my-artwork.jpg,Untitled No. 1,2025,3,Oil on canvas,40 × 60 in,"[Spring Collection], [Landscape]"\n';
+  'file,title,year,month,medium,size,collections,layout\n' +
+  'my-artwork.jpg,Untitled No. 1,2025,3,Oil on canvas,40 × 60 in,"[Spring Collection], [Landscape]"\n' +
+  '"panel-a.jpg, panel-b.jpg",Untitled No. 2,2024,6,Oil on canvas,"40 × 60 in, 40 × 60 in","[Spring Collection]","offset"\n';
