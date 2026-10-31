@@ -15,7 +15,8 @@ const featured = computed(() => sortWorks(props.works, "newest").find((w) => w.t
   <section class="intro page" aria-label="Introduction">
     <div class="cols">
       <div class="statement">
-        <p>{{ site.statement }}</p>
+        <p class="headline">{{ site.statement }}</p>
+        <p v-if="site.sub_statement" class="sub-statement">{{ site.sub_statement }}</p>
         <RouterLink class="link" :to="{ path: '/', hash: '#works' }">View works ↓</RouterLink>
       </div>
 
@@ -47,15 +48,23 @@ const featured = computed(() => sortWorks(props.works, "newest").find((w) => w.t
 .latest button { text-align: left; }
 .latest button:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-/* The statement now opens the page. It uses the display face when gothic.css is loaded,
-   and quietly falls back to the body font when it isn't. */
 .statement { padding-right: clamp(0px, 2vw, 32px); }
-.statement p {
+.statement .headline {
   font-family: var(--display);
   font-size: clamp(28px, 2.8vw, 42px);
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: 0;
+}
+.statement .sub-statement {
+  max-width: 40ch;
+  margin-top: 14px;
+  font-family: var(--sans);
+  font-size: clamp(14px, 1.3vw, 18px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--muted);
 }
 .statement .link { margin-top: 28px; font-size: 18px; }
 
@@ -80,7 +89,8 @@ const featured = computed(() => sortWorks(props.works, "newest").find((w) => w.t
 
 @media (max-width: 899px) {
   .cols { grid-template-columns: 1fr 1fr; row-gap: 32px; }
-  .statement { grid-column: 1 / -1; max-width: 22ch; padding-right: 0; }
+  .statement { grid-column: 1 / -1; padding-right: 0; }
+  .statement .headline { max-width: 22ch; } /* "ch" is measured in the element's own font, so the limit goes on the headline itself. */
   .feature { grid-column: 1 / -1; }
 }
 @media (max-width: 520px) {

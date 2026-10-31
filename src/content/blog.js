@@ -1,7 +1,7 @@
 /* Site content - Blog entries.
  *
- * To add a post, paste a new object into `posts`. Order doesn't matter:
- * the newest date is always shown first.
+ * To add a post, paste a new object into `posts`. * Order doesn't matter *
+ *                                                      the newest date is always shown first.
  *
  *   date    "2026-10-25"  (the day is optional: "2026-10" shows as "October 2026")
  *   title   shown bold, like a section header
@@ -11,13 +11,33 @@
  *             "images/blog/photo.jpg"     a path inside public/
  *             "https://..."               a full URL
  *             { src: "photo.jpg", alt: "…", caption: "…" }   with alt text / caption
- *
- * The three posts below are placeholders. Replace them with your own.
  */
 export const blog = {
-  heading: "Notes from the studio.",
+  heading: "from behind my phone", //title TBD...
   posts: [
     {
+      date: "2026-10-30",
+      title: "skill building and new experiences",
+      body: `In preparing my works for this portfolio project, I've had to teach myself quite a bit. Originally, all I wanted was a personal photo album with clear photographs of my traditional art -- paintings mostly, but maybe expand to drawings -- so that I could reference it when I felt like. I liked the idea of being able to easily show my art to people who asked without having to scroll through my hundreds of progress photos mid-painting (quite helpful for other discussions, I might add.) 
+      
+So then came when I was conceptualizing taking the photos, and my dad offers to buy studio lights and set up a rig for more professional looking photos. Brought out the digital camera, set up the lights, and we cranked out the photographs in a couple of hours. If I haven't said it yet, thanks dad for your help on this project.
+
+And now, as I sit here with GIMP open and teaching myself basic concepts in photo-editing so that I can touch up these forsaken photographs to make this project perfect, I am thinking about how this project evolved over the past couple weeks. You know I didn't even originally plan to make this site at all, right? Woe is me to commit to a simple and small project for once. But no, I had to use my Computer Science Bachelor's degree for something and build myself a site to elegantly showcase my paintings -- and maybe digital artwork in the future, god-willing -- to pretend I have an inkling of talent for art. 
+
+This post is the first I will make of many, so sorry if this too long for some to read. I want to blog reflecting on my process of art-making, what inspires me, and further thoughts and feelings surrounding my work. By no means do I do this as a career or even a side-job as commissions, but if you'd like, reach out to me and we can discuss. 
+
+If no one reads this and it's just me talking to myself, I will have regretted nothing. If few visit this site, never read these posts, but enjoy the art I make in passing, I will feel forever proud of this project. If this brings about a career I never planned but always hoped, then I will die happy. But in the meantime, I'll continue editing my photos in [GIMP](https://www.gimp.org), poisoning them with [Glaze](https://glaze.cs.uchicago.edu), and cataloging them into my system.
+
+I love you.
+
+Aether`,
+      images: ["images/blog/mid-editing_2026-10-28.png", "images/blog/editing-file-management_2026-10-30.png"],
+    },
+
+
+  /* ======= example posts ======================================= */
+
+    /* {
       date: "2026-09-14",
       title: "A short one",
       body: "Finished the small panel today. Nothing to add.",
@@ -44,6 +64,6 @@ The photographs below show the panel before and after I stopped.`,
 
 I have been mixing it in thin, nearly translucent layers and sanding between them. The result has a depth that photographs badly, which is a good reason to see the work in person.`,
       images: ["https://picsum.photos/seed/notes-c/900/700"],
-    },
+    }, */
   ],
 };

@@ -73,9 +73,10 @@ const sourceText = {
           <ol class="steps">
             <li>
               <h3>Get the template</h3>
-              <p>Columns: file, title, year, month, medium, size, collections. Month and collections are optional.
-                    Width, height and unit columns also work in place of size. Collections are one cell:
-                    <code>[Spring Collection], [Landscape]</code>.</p>
+              <p>Columns: file, title, year, month, medium, size, collections, layout. Month, collections and layout are optional.
+                Width, height and unit columns also work in place of size. Collections are one cell:
+                <code>[Spring Collection], [Landscape]</code>.</p>
+              <p>For multi-panel works (like diptychs), separate the files with commas in the file column, and set layout to <code>offset</code>, <code>side-by-side</code>, or <code>stacked</code>.</p>
               <button type="button" class="btn" @click="downloadTemplate">Download CSV</button>
             </li>
             <li>

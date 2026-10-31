@@ -8,6 +8,7 @@ export const site = {
   name: "Aether",
   location: "Portland, Oregon", // required for footer to render! can change later...
   statement: "Art is less about the final product, but rather of the process of construction, molding, mixing, blending, and feeling.",
+  sub_statement: "Check my Blog or read About Me!",
 
   /* about page */
   about: {

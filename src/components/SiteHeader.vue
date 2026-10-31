@@ -11,6 +11,7 @@
       { label: "Collections", to: "/collections" },
       { label: "Index", to: { path: "/", hash: "#index" } },
       { label: "About", to: "/about" },
+      { label: "Blog", to: "/blog" },
     ];
 
     const isCurrent = (link) => typeof link.to === "string" && link.to === route.path;

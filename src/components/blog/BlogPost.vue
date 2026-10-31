@@ -22,12 +22,31 @@ const dateLabel = computed(() => {
   return day ? `${name} ${Number(day)}, ${year}` : `${name} ${year}`;
 });
 
+// Links: write [the words](https://example.com) anywhere in a paragraph.
+// Only http(s), mailto and #/internal links become links; anything else stays plain text.
+const LINK = /\[([^\]]+)\]\(([^)\s]+)\)/g;
+const SAFE = /^(https?:\/\/|mailto:|#)/i;
+
+function pieces(text) {
+  const out = [];
+  let last = 0;
+  for (const m of text.matchAll(LINK)) {
+    if (m.index > last) out.push({ text: text.slice(last, m.index) });
+    out.push(SAFE.test(m[2]) ? { text: m[1], href: m[2], external: /^https?:/i.test(m[2]) } : { text: m[0] });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push({ text: text.slice(last) });
+  return out;
+}
+
 // Blank line = new paragraph. Single line breaks reflow, so indented template literals are fine.
+// Each paragraph is a list of pieces: plain text, or text with an href.
 const paragraphs = computed(() =>
   String(props.post.body || "")
     .split(/\n\s*\n/)
     .map((p) => p.replace(/\s*\n\s*/g, " ").trim())
-    .filter(Boolean),
+    .filter(Boolean)
+    .map(pieces),
 );
 
 const images = computed(() =>
@@ -78,7 +97,17 @@ onBeforeUnmount(() => observer?.disconnect());
       <h2 :id="`${uid}-title`" class="title">{{ post.title }}</h2>
 
       <div :id="`${uid}-body`" ref="body" class="body" :class="{ clamped: !open, fade: !open && overflowing }">
-        <p v-for="(p, i) in paragraphs" :key="i">{{ p }}</p>
+        <p v-for="(p, i) in paragraphs" :key="i">
+          <template v-for="(piece, j) in p" :key="j"
+            ><a
+              v-if="piece.href"
+              :href="piece.href"
+              :target="piece.external ? '_blank' : undefined"
+              :rel="piece.external ? 'noopener noreferrer' : undefined"
+              >{{ piece.text }}</a
+            ><template v-else>{{ piece.text }}</template></template
+          >
+        </p>
       </div>
 
       <div v-if="open && images.length" class="media" :class="{ single: images.length === 1 }">
@@ -119,6 +148,8 @@ onBeforeUnmount(() => observer?.disconnect());
 
 .body { margin-top: 14px; max-width: 62ch; font-size: 16px; line-height: 1.65; }
 .body p + p { margin-top: 1em; }
+.body a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.body a:hover { opacity: 0.6; }
 /* Collapsed: about five lines tall, fading out where the text is cut. */
 .body.clamped { max-height: calc(1.65em * 5); overflow: hidden; }
 .body.fade {
