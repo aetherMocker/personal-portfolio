@@ -31,10 +31,8 @@ function step(delta) {
   const n = props.works.length;
   
   if (showComposed.value) {
-    // In composed view, step through whole works
     id.value = props.works[(index.value + delta + n) % n].id;
   } else {
-    // In single view, step through panels first, then move to next/prev work
     const numPanels = current.value.images?.length || 1;
     const nextPanel = panelIndex.value + delta;
     if (nextPanel >= 0 && nextPanel < numPanels) {
@@ -60,9 +58,9 @@ watch(current, (now, before) => {
   }
 });
 
-// Reset panel index and image states when the work changes
-watch(id, () => {
-  panelIndex.value = 0;
+// Reset the load state whenever the picture changes: a new work, or a new panel of the same work.
+watch(id, () => (panelIndex.value = 0));
+watch([id, panelIndex], () => {
   loaded.value = false;
   useThumb.value = false;
 });
@@ -110,8 +108,7 @@ onBeforeUnmount(() => {
         </header>
 
         <div class="stage" @click.self="close">
-          <!-- Composed View (Multiple Panels) -->
-          <div v-if="showComposed && current.images && current.images.length > 1" class="composed" :class="current.layout">
+          <div v-if="showComposed && current.images && current.images.length > 1" class="composed" :class="current.layout" :style="{ '--n': current.images.length }" @click.self="close">
             <img
               v-for="(img, i) in current.images"
               :key="i"
@@ -120,7 +117,6 @@ onBeforeUnmount(() => {
             />
           </div>
           
-          <!-- Single View -->
           <img
             v-else-if="src"
             :key="current.id + src"
@@ -152,88 +148,54 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.lb {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  padding: 14px var(--gutter) 20px;
-  background: color-mix(in srgb, var(--paper) 97%, transparent);
-}
-
+.lb { position: fixed; inset: 0; z-index: 60; display: grid; grid-template-rows: auto 1fr auto; padding: 14px var(--gutter) 20px; background: var(--paper); }
 .top { display: flex; justify-content: space-between; align-items: center; height: 36px; }
 .actions { display: flex; gap: 24px; align-items: center; }
 .ctl { font-family: var(--mono); font-size: 12px; color: var(--muted); padding: 6px 0; }
 .ctl:hover, .ctl[aria-pressed="true"] { color: var(--ink); }
 .ctl[aria-pressed="true"] { text-decoration: underline; text-underline-offset: 4px; }
-
-.stage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  min-width: 0;
-  padding-block: 8px 18px;
-}
-
-.stage > img {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 10px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
+.stage { display: flex; align-items: center; justify-content: center; min-height: 0; min-width: 0; padding-block: 8px 18px; }
+.stage > img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: 10px; opacity: 0; transition: opacity 0.3s ease; }
 .stage > img.ready { opacity: 1; }
-
-/* Composed view (multiple panels) */
+/* Together view. The container fills the stage so the images' percentage limits resolve against
+   something real (before, they had nothing and fell back to natural size and overflowed). Each image
+   is sized on its own, keeping its proportions and rounded corners, and the group is centred. */
 .composed {
+  --n: 2; /* panel count, set from the template */
   display: flex;
-  gap: 10px;
   align-items: center;
   justify-content: center;
-  max-width: 100%;
-  max-height: 100%;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
 }
 .composed img {
-  max-width: 100%;
-  max-height: 100%;
+  flex: 0 1 auto;
+  min-width: 0;
+  min-height: 0;
   width: auto;
   height: auto;
-  object-fit: contain;
+  max-width: calc((100% - (var(--n) - 1) * 10px) / var(--n));
+  max-height: 100%;
   border-radius: 10px;
 }
-.composed.offset {
-  align-items: flex-start;
-}
-.composed.offset img:nth-child(2) {
-  margin-top: 15%; /* Adjust this percentage to align the canvases perfectly */
-}
-.composed.stacked {
-  flex-direction: column;
-}
-
+/* Offset: panels staggered by a fixed amount (transform, so it never changes the layout). */
+.composed.offset { --offset: clamp(24px, 8vh, 72px); }
+.composed.offset img { max-height: calc(100% - var(--offset)); }
+.composed.offset img:nth-child(odd) { transform: translateY(calc(var(--offset) / -2)); }
+.composed.offset img:nth-child(even) { transform: translateY(calc(var(--offset) / 2)); }
+/* Stacked: one above the other. */
+.composed.stacked { flex-direction: column; }
+.composed.stacked img { max-width: 100%; max-height: calc((100% - (var(--n) - 1) * 10px) / var(--n)); }
 .foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
-.caption {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: 40px;
-  row-gap: 1px;
-  width: min(100%, 560px);
-}
+.caption { display: grid; grid-template-columns: max-content max-content; justify-content: start; column-gap: 32px; row-gap: 1px; max-width: 100%; }
 .title { font-size: 16px; font-weight: 500; letter-spacing: -0.01em; }
-.when, .size { text-align: right; white-space: nowrap; }
+.when, .size { white-space: nowrap; }
 .medium, .size { color: var(--muted); }
 .steps { display: flex; gap: 24px; }
-
 .lb-enter-active, .lb-leave-active { transition: opacity 0.22s ease; }
 .lb-enter-from, .lb-leave-to { opacity: 0; }
-
-@media (max-width: 600px) {
-  .foot { flex-direction: column; align-items: stretch; gap: 14px; }
-  .steps { justify-content: space-between; }
-}
+@media (max-width: 600px) { .foot { flex-direction: column; align-items: stretch; gap: 14px; } .steps { justify-content: space-between; } }
 </style>

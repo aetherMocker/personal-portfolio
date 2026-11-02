@@ -41,7 +41,7 @@ export function parseCollections(v) {
 
 // ---------------------------------------------------------------- parsing
 
-const fileList = (v) => clean(v).split(",").map(s => s.trim()).filter(Boolean);
+const fileList = (v) => clean(v).split(/[,;|\n]+/).map((s) => s.trim()).filter(Boolean);
 const clean = (v) => String(v ?? "").trim();
 const lowerKeys = (row) => Object.fromEntries(Object.entries(row).map(([k, v]) => [k.trim().toLowerCase(), v]));
 
