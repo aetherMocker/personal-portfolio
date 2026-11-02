@@ -15,7 +15,7 @@ const facts = computed(() => {
   return [
     { label: "Works catalogued", value: String(works.value.length) },
     { label: "Years", value: span },
-    { label: "Media", value: String(media.size) },
+    { label: "Mediums", value: String(media.size) },
   ];
 });
 </script>
@@ -33,8 +33,8 @@ const facts = computed(() => {
         <p class="label">Practice;</p>
         <p v-for="p in site.about.paragraphs" :key="p" class="text">{{ p }}</p>
         <div class="actions">
-          <RouterLink class="link" to="/contact">Get in touch</RouterLink>
-          <RouterLink class="link" :to="{ path: '/', hash: '#works' }">View works</RouterLink>
+          <RouterLink class="link" :to="{ path: '/', hash: '#works' }">View Works</RouterLink>
+          <RouterLink class="link" :to="{ path: '/blog', hash: '#works' }">Read Blog</RouterLink>
         </div>
       </div>
 
@@ -61,7 +61,7 @@ const facts = computed(() => {
 
 <style scoped>
 .about { padding-top: clamp(40px, 8vh, 96px); }
-.heading { max-width: 16ch; font-size: clamp(34px, 5vw, 72px); font-weight: 500; letter-spacing: -0.03em; line-height: 1.02; }
+.heading { max-width: 75%; font-size: clamp(34px, 5vw, 72px); font-weight: 500; letter-spacing: -0.03em; line-height: 1.02; }
 
 .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); margin-top: clamp(48px, 9vh, 104px); align-items: start; }
 .portrait img { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius); background: var(--wash); }
